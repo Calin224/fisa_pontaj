@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(NotionContext))]
-    [Migration("20250312115923_FixRelations")]
-    partial class FixRelations
+    [Migration("20250312170107_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -190,9 +190,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TimeEntryId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

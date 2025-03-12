@@ -53,7 +53,8 @@ public class AccountController(SignInManager<AppUser> signInManager) : BaseApiCo
         {
             user.FirstName,
             user.LastName,
-            user.Email
+            user.Email,
+            user.Id
         });
     }
 

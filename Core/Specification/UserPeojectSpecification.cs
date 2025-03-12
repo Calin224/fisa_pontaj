@@ -9,4 +9,8 @@ public class UserProjectSpecification : BaseSpecification<UserProject>
         x.AppUserId == userId && x.Id == projectId)
     {
     }
+
+    public UserProjectSpecification(string userId) : base(x => x.AppUserId == userId)
+    {
+    }
 }

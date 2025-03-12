@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using API.DTOs;
 using API.Extensions;
 using Core.Entities;
 using Core.Interfaces;
@@ -12,39 +13,38 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-public class TimeEntriesController(IGenericRepository<TimeEntry> repo, ITimeEntryService service, SignInManager<AppUser> signInManager) : BaseApiController
+public class TimeEntriesController(IGenericRepository<TimeEntry> repo, IGenericRepository<UserProject> projectRepo, IGenericRepository<WorkDay> workDayRepo, ITimeEntryService service) : BaseApiController
 {
     [HttpPost]
-    public async Task<IActionResult> AddTimeEntry([FromBody] TimeEntry entry)
+    public async Task<IActionResult> CreateTimeEntry(CreateTimeEntryDto createDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userId == null) return Unauthorized();
 
-        entry.UserId = userId;
+        var project = await projectRepo.GetEntityWithSpec(new UserProjectSpecification(userId, createDto.UserProjectId));
+        if(project == null) return BadRequest("Project not found");
 
-        try
+        var workDay = await workDayRepo.GetEntityWithSpec(new WorkDaySpecification(userId, createDto.WorkDayId));
+        if(workDay == null) return BadRequest("Work day not found");
+
+        if (createDto.StartTime >= createDto.EndTime)
         {
-            await service.ValidateTimeEntryAsync(entry);
-            repo.Add(entry);
-            if(await repo.SaveAllAsync()) return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
+            return BadRequest("Start time must be earlier than end time.");
         }
 
-        return BadRequest("Failed to add time entry.");
-    }
+        var timeEntry = new TimeEntry()
+        {
+            UserId = userId,
+            Date = createDto.Date,
+            StartTime = createDto.StartTime,
+            EndTime = createDto.EndTime,
+            IsBaseHours = createDto.IsBaseHours,
+            UserProjectId = createDto.UserProjectId,
+            WorkDayId = createDto.WorkDayId
+        };
+        repo.Add(timeEntry);
+        if(await repo.SaveAllAsync()) return Ok();
 
-    [HttpGet]
-    public async Task<IActionResult> GetUserTimeEntries()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if(userId == null) return Unauthorized();
-
-        var spec = new TimeEntrySpecification(userId);
-        var entries = await repo.ListAsync(spec);
-
-        return Ok(entries);
+        return BadRequest("Failed to create time entry");
     }
 }

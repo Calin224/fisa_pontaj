@@ -56,46 +56,46 @@ public class NotionContext(DbContextOptions options) : IdentityDbContext<AppUser
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-    base.OnModelCreating(builder);
+        base.OnModelCreating(builder);
 
-    // Configurarea relației One-to-One între TimeEntry și UserProject
-    builder.Entity<TimeEntry>()
-        .HasOne(te => te.UserProject) 
-        .WithOne(up => up.TimeEntry)  // UserProject are un singur TimeEntry
-        .HasForeignKey<TimeEntry>(te => te.UserProjectId)  // Cheia străină în TimeEntry
-        .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
-        .IsRequired();
+        // Configurarea relației One-to-One între TimeEntry și UserProject
+        builder.Entity<TimeEntry>()
+            .HasOne(te => te.UserProject)
+            .WithOne(up => up.TimeEntry)
+            .HasForeignKey<TimeEntry>(te => te.UserProjectId)
+            .OnDelete(DeleteBehavior.NoAction)
+            .IsRequired();
 
-    // Configurarea relației One-to-Many între WorkDay și TimeEntry
-    builder.Entity<WorkDay>()
-        .HasMany(wd => wd.TimeEntries) // WorkDay poate avea mai multe TimeEntries
-        .WithOne(te => te.WorkDay) // TimeEntry are un singur WorkDay
-        .HasForeignKey(te => te.WorkDayId)
-        .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
-        .IsRequired();
+        // Configurarea relației One-to-Many între WorkDay și TimeEntry
+        builder.Entity<WorkDay>()
+            .HasMany(wd => wd.TimeEntries) // WorkDay poate avea mai multe TimeEntries
+            .WithOne(te => te.WorkDay) // TimeEntry are un singur WorkDay
+            .HasForeignKey(te => te.WorkDayId)
+            .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
+            .IsRequired();
 
-    // Configurarea relației One-to-Many între WorkWeek și WorkDay
-    builder.Entity<WorkWeek>()
-        .HasMany(ww => ww.WorkDays)
-        .WithOne(wd => wd.WorkWeek) // WorkDay are un singur WorkWeek
-        .HasForeignKey(wd => wd.WorkWeekId)
-        .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
-        .IsRequired();
+        // Configurarea relației One-to-Many între WorkWeek și WorkDay
+        builder.Entity<WorkWeek>()
+            .HasMany(ww => ww.WorkDays)
+            .WithOne(wd => wd.WorkWeek) // WorkDay are un singur WorkWeek
+            .HasForeignKey(wd => wd.WorkWeekId)
+            .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
+            .IsRequired();
 
-    // Configurarea relației One-to-Many între TimeSheet și WorkWeek
-    builder.Entity<TimeSheet>()
-        .HasMany(ts => ts.WorkWeeks)
-        .WithOne(ww => ww.TimeSheet)
-        .HasForeignKey(ww => ww.TimeSheetId)
-        .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
-        .IsRequired();
+        // Configurarea relației One-to-Many între TimeSheet și WorkWeek
+        builder.Entity<TimeSheet>()
+            .HasMany(ts => ts.WorkWeeks)
+            .WithOne(ww => ww.TimeSheet)
+            .HasForeignKey(ww => ww.TimeSheetId)
+            .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
+            .IsRequired();
 
-    // Configurarea relației între UserProject și AppUser
-    builder.Entity<UserProject>()
-        .HasOne(up => up.AppUser)  // UserProject are un singur AppUser
-        .WithMany(u => u.UserProjects)
-        .HasForeignKey(up => up.AppUserId)
-        .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
-        .IsRequired();
+        // Configurarea relației între UserProject și AppUser
+        builder.Entity<UserProject>()
+            .HasOne(up => up.AppUser)  // UserProject are un singur AppUser
+            .WithMany(u => u.UserProjects)
+            .HasForeignKey(up => up.AppUserId)
+            .OnDelete(DeleteBehavior.NoAction)  // Fără ștergere în cascadă
+            .IsRequired();
     }
 }
