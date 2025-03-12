@@ -344,3 +344,4 @@ C:\Users\sandu\Desktop\structura\api\obj\Debug\net9.0\refint\API.dll
 C:\Users\sandu\Desktop\structura\api\obj\Debug\net9.0\API.pdb
 C:\Users\sandu\Desktop\structura\api\obj\Debug\net9.0\API.genruntimeconfig.cache
 C:\Users\sandu\Desktop\structura\api\obj\Debug\net9.0\ref\API.dll
+C:\Users\sandu\Desktop\structura\api\obj\Debug\net9.0\API.sourcelink.json
