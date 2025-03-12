@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedIdentity : Migration
+    public partial class FixRelations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -158,6 +158,138 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TimeSheets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimeSheets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimeSheets_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserProjects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProjectCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TimeEntryId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserProjects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserProjects_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkWeeks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    WeekNumber = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TimeSheetId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkWeeks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkWeeks_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_WorkWeeks_TimeSheets_TimeSheetId",
+                        column: x => x.TimeSheetId,
+                        principalTable: "TimeSheets",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkDays",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    WorkWeekId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkDays", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkDays_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_WorkDays_WorkWeeks_WorkWeekId",
+                        column: x => x.WorkWeekId,
+                        principalTable: "WorkWeeks",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimeEntries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    IsBaseHours = table.Column<bool>(type: "bit", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserProjectId = table.Column<int>(type: "int", nullable: false),
+                    WorkDayId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimeEntries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimeEntries_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TimeEntries_UserProjects_UserProjectId",
+                        column: x => x.UserProjectId,
+                        principalTable: "UserProjects",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TimeEntries_WorkDays_WorkDayId",
+                        column: x => x.WorkDayId,
+                        principalTable: "WorkDays",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -196,6 +328,52 @@ namespace Infrastructure.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeEntries_AppUserId",
+                table: "TimeEntries",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeEntries_UserProjectId",
+                table: "TimeEntries",
+                column: "UserProjectId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeEntries_WorkDayId",
+                table: "TimeEntries",
+                column: "WorkDayId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeSheets_AppUserId",
+                table: "TimeSheets",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProjects_AppUserId",
+                table: "UserProjects",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkDays_AppUserId",
+                table: "WorkDays",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkDays_WorkWeekId",
+                table: "WorkDays",
+                column: "WorkWeekId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkWeeks_AppUserId",
+                table: "WorkWeeks",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkWeeks_TimeSheetId",
+                table: "WorkWeeks",
+                column: "TimeSheetId");
         }
 
         /// <inheritdoc />
@@ -217,7 +395,22 @@ namespace Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "TimeEntries");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "UserProjects");
+
+            migrationBuilder.DropTable(
+                name: "WorkDays");
+
+            migrationBuilder.DropTable(
+                name: "WorkWeeks");
+
+            migrationBuilder.DropTable(
+                name: "TimeSheets");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
