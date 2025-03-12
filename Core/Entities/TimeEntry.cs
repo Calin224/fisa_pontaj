@@ -5,11 +5,23 @@ namespace Core.Entities;
 
 public class TimeEntry : BaseEntity
 {
-    public string ProjectName { get; set; } = "";
+    public string? UserId { get; set; }
+    // public int ProjectId { get; set; }
     public DateTime Date { get; set; }
-    public int Hours { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
+    // public string Description { get; set; } 
+    public bool IsBaseHours { get; set; }
 
-    [Required]
-    public string UserId { get; set; } = "";
-    public AppUser? User { get; set; }
+    public double Hours => (EndTime - StartTime).TotalHours;
+
+    // navigation
+    public AppUser AppUser { get; set; } = null!;
+    // public Project Project { get; set; } = null!;
+
+    public int UserProjectId { get; set; }
+    public UserProject UserProject { get; set; } = null!;
+
+    public int WorkDayId { get; set; }
+    public WorkDay WorkDay { get; set; } = null!;
 }
