@@ -22,8 +22,25 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddCors();
 
-builder.Services.AddIdentityApiEndpoints<AppUser>()
+builder.Services.AddIdentityApiEndpoints<AppUser>(options => {
+    // Configurare mai strictă pentru identitate
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+})
     .AddEntityFrameworkStores<NotionContext>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30); 
+    options.SlidingExpiration = true;
+});
 
 var app = builder.Build();
 
@@ -33,6 +50,8 @@ app.UseCors(policy =>
         .AllowAnyMethod()
         .AllowCredentials()
 );
+
+app.UseAuthentication();
 
 app.UseHttpsRedirection();
 

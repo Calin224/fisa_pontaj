@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {forkJoin} from 'rxjs';
+import {catchError, forkJoin, of} from 'rxjs';
 import {AccountService} from './account.service';
 
 @Injectable({
@@ -11,6 +11,11 @@ export class InitService {
   init(){
     return forkJoin({
       user: this.accountService.getUserInfo()
-    })
+    }).pipe(
+      catchError(error => {
+        console.error('Eroare la inițializare:', error);
+        return of({ user: null });
+      })
+    );
   }
 }

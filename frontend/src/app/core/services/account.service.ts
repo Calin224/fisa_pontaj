@@ -16,11 +16,7 @@ export class AccountService {
     let params = new HttpParams();
     params = params.append('useCookies', true);
 
-    return this.http.post<User>(this.baseUrl + 'login', values, {params, withCredentials: true}).pipe(
-      tap((user: User) => {
-        localStorage.setItem('userId', user.id);
-      })
-    )
+    return this.http.post<User>(this.baseUrl + 'login', values, {params, withCredentials: true})
   }
 
   getUserInfo(){
